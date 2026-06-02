@@ -1,4 +1,4 @@
-import { WorkloadHealth, DeploymentItem, StatefulSetItem, DaemonSetItem, JobStatus, JobItem, CronJobItem } from '../types/workloads';
+import { WorkloadHealth, DeploymentItem, StatefulSetItem, DaemonSetItem, JobStatus, CronJobItem } from '../types/workloads';
 
 export function formatAge(isoString: string | null): string {
   if (!isoString) return '—';
