@@ -43,7 +43,10 @@ spec:
             - name: FLASK_DEBUG
               value: {{ .Values.backend.env.FLASK_DEBUG | quote }}
             - name: SECRET_KEY
-              value: {{ .Values.backend.env.SECRET_KEY | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "k8s-viz.fullname" . }}
+                  key: secret-key
             - name: PORT
               value: {{ .Values.backend.port | quote }}
           livenessProbe:

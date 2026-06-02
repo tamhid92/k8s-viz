@@ -15,13 +15,12 @@ backend:
       memory: 512Mi
   env:
     FLASK_DEBUG: "false"
-    SECRET_KEY: "change-me-in-production"
 
 # Frontend
 frontend:
   image:
     repository: k8s-viz-frontend
-    tag: "latest"       # ← update this tag to deploy new frontend versions
+    tag: "latest"
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 80
@@ -35,15 +34,12 @@ frontend:
   service:
     type: NodePort
     port: 80
-    nodePort: 30080     # set to 0 to let K8s auto-assign
+    nodePort: 0
 
 # ServiceAccount and RBAC
 serviceAccount:
   create: true
   name: ""              # auto-generated from chart name if empty
-
-# Image pull secrets (for private registries)
-imagePullSecrets: []
 
 # Pod-level settings
 podAnnotations: {}
