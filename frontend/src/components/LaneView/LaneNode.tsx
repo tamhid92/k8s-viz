@@ -8,9 +8,11 @@ interface LaneNodeProps {
   selected: boolean;
   onSelect: (id: string) => void;
   registerRef: (id: string, el: HTMLElement | null) => void;
+  onHover?: () => void;
+  onHoverEnd?: () => void;
 }
 
-export const LaneNode: React.FC<LaneNodeProps> = ({ node, selected, onSelect, registerRef }) => {
+export const LaneNode: React.FC<LaneNodeProps> = ({ node, selected, onSelect, registerRef, onHover, onHoverEnd }) => {
   const elRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +61,8 @@ export const LaneNode: React.FC<LaneNodeProps> = ({ node, selected, onSelect, re
     <div
       ref={elRef}
       onClick={() => onSelect(node.id)}
+      onMouseEnter={onHover}
+      onMouseLeave={onHoverEnd}
       className={`w-[180px] bg-[var(--bg-surface)] border border-[var(--border)] rounded px-[10px] py-[8px] cursor-pointer transition-all duration-120 shadow-[0_1px_2px_rgba(0,0,0,0.05)] ${
         selected ? 'border-[var(--border-accent)]' : 'hover:border-[var(--border-bright)]'
       }`}

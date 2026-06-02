@@ -57,7 +57,13 @@ export const NetworkSection: React.FC<NetworkSectionProps> = ({
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ 
+        flex: 1, 
+        position: 'relative', 
+        overflow: 'hidden',
+        marginRight: selectedNodeId ? '320px' : '0',
+        transition: 'margin-right 300ms ease'
+      }}>
         <div style={{ display: view.screen === 'overview' || view.screen === 'transitioning-in' || view.screen === 'transitioning-out' ? 'block' : 'none', height: '100%' }}>
           <NamespaceOverview
             stats={namespaceStats}
@@ -85,8 +91,8 @@ export const NetworkSection: React.FC<NetworkSectionProps> = ({
       </div>
 
       <DetailPanel
-        nodeId={viewMode === 'topology' ? selectedNodeId : null}
-        groupId={viewMode === 'policy' ? selectedNodeId : null}
+        nodeId={viewMode === 'topology' && !selectedNodeId?.startsWith('wg/') ? selectedNodeId : null}
+        groupId={viewMode === 'policy' ? selectedNodeId : (selectedNodeId?.startsWith('wg/') ? selectedNodeId : null)}
         graph={graph}
         namespace={currentNs}
         onClose={() => onNodeSelect(null)}

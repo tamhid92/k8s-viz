@@ -28,6 +28,8 @@ export const TopologyView: React.FC<TopologyViewProps> = ({
 
   const nodeRefs = useRef<Map<string, HTMLElement | null>>(new Map());
   const [refVersion, setRefVersion] = useState(0);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const activeNodeId = hoveredNodeId || selectedNodeId;
 
   const registerRef = useCallback((id: string, el: HTMLElement | null) => {
     if (el) {
@@ -80,14 +82,14 @@ export const TopologyView: React.FC<TopologyViewProps> = ({
             <EntryPortal key={p.portalId} portal={p} registerRef={registerRef} onNavigate={onNavigate} />
           ))}
           {data.ingresses.map(n => (
-            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} />
+            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} onHover={() => setHoveredNodeId(n.id)} onHoverEnd={() => setHoveredNodeId(null)} />
           ))}
         </div>
 
         {/* Service */}
         <div className="flex-1 border-r border-[var(--border)] p-3 flex flex-col gap-2.5 items-center">
           {data.services.map(n => (
-            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} />
+            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} onHover={() => setHoveredNodeId(n.id)} onHoverEnd={() => setHoveredNodeId(null)} />
           ))}
         </div>
 
@@ -98,11 +100,11 @@ export const TopologyView: React.FC<TopologyViewProps> = ({
               key={wg.groupId}
               group={wg}
               selected={selectedNodeId === wg.groupId}
-              hovered={false}
+              hovered={hoveredNodeId === wg.groupId}
               hasPolicies={true}
               onSelect={onNodeSelect}
-              onHover={() => {}}
-              onHoverEnd={() => {}}
+              onHover={() => setHoveredNodeId(wg.groupId)}
+              onHoverEnd={() => setHoveredNodeId(null)}
               registerRef={registerRef}
             />
           ))}
@@ -114,12 +116,19 @@ export const TopologyView: React.FC<TopologyViewProps> = ({
         {/* Node */}
         <div className="flex-1 p-3 flex flex-col gap-2.5 items-center">
           {data.clusterNodes.map(n => (
-            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} />
+            <LaneNode key={n.id} node={n} selected={selectedNodeId === n.id} onSelect={onNodeSelect} registerRef={registerRef} onHover={() => setHoveredNodeId(n.id)} onHoverEnd={() => setHoveredNodeId(null)} />
           ))}
         </div>
 
         <ConnectionLines
-          connections={data.connections}
+          connections={data.connections.map(c => {
+            if (!activeNodeId) return c;
+            const involvesActive = c.sourceId === activeNodeId || c.targetId === activeNodeId;
+            return {
+              ...c,
+              highlighted: involvesActive
+            };
+          })}
           getRect={getRect}
           containerRef={containerRef}
           refVersion={refVersion}

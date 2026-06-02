@@ -10,6 +10,7 @@ interface Connection {
   edgeType?: EdgeType;
   ports?: number[];
   animated?: boolean;
+  highlighted?: boolean;
 }
 
 interface ConnectionLinesProps {
@@ -37,7 +38,8 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ connections, g
     { id: 'marker-allowed', color: POLICY_STATUS_COLORS.allowed },
     { id: 'marker-blocked', color: POLICY_STATUS_COLORS.blocked },
     { id: 'marker-implicit', color: POLICY_STATUS_COLORS.implicit },
-    ...Object.entries(EDGE_COLORS).map(([type, color]) => ({ id: `marker-${type}`, color }))
+    ...Object.entries(EDGE_COLORS).map(([type, color]) => ({ id: `marker-${type}`, color })),
+    { id: 'marker-highlighted', color: 'var(--border-accent)' }
   ];
 
   return (
@@ -70,12 +72,22 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ connections, g
             if (c.ports) c.ports.forEach(p => existing.allPorts.add(p));
             existing.animated = existing.animated || c.animated;
             if (c.status === 'allowed') existing.status = 'allowed';
+            if (c.highlighted) existing.highlighted = true;
           }
         }
-        return Array.from(grouped.values()).map(c => ({
+        
+        let arr = Array.from(grouped.values()).map(c => ({
           ...c,
           ports: Array.from(c.allPorts).sort((a, b) => a - b)
         }));
+        
+        arr.sort((a, b) => {
+          if (a.highlighted && !b.highlighted) return 1;
+          if (!a.highlighted && b.highlighted) return -1;
+          return 0;
+        });
+
+        return arr;
       })().map(conn => {
         const sourceRect = getRect(conn.sourceId);
         const targetRect = getRect(conn.targetId);
@@ -101,17 +113,23 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ connections, g
           markerId = `marker-${conn.edgeType}`;
         }
 
+        if (conn.highlighted) {
+          color = 'var(--border-accent)';
+          markerId = 'marker-highlighted';
+        }
+
         const isImplicit = conn.status === 'implicit';
         const isBlocked = conn.status === 'blocked';
         const isAllowed = conn.status === 'allowed';
         const isAnimated = conn.animated;
 
-        const strokeWidth = (isAnimated || isAllowed) ? 1.5 : 1;
-        const opacity = isImplicit ? 0.75 : 1;
+        const strokeWidth = conn.highlighted ? 2.5 : ((isAnimated || isAllowed) ? 1.5 : 1);
+        let opacity = isImplicit && !conn.highlighted ? 0.75 : 1;
+        
         let dasharray = 'none';
 
         if (isAnimated) dasharray = '7 5';
-        else if (isImplicit || isBlocked) dasharray = '5 3';
+        else if ((isImplicit || isBlocked) && !conn.highlighted) dasharray = '5 3';
 
         const midX = (sx + tx) / 2;
         const midY = (sy + ty) / 2;

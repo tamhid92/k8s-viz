@@ -4,7 +4,7 @@ import { useLogManager } from '../../hooks/useLogManager';
 import { Graph, PodData, ServiceData, IngressData, NetworkPolicyData, ClusterNodeData, NamespaceData, WorkloadGroup } from '../../types/graph';
 import { TraceRequest } from '../../types/trace';
 import { NODE_COLORS, NODE_LABELS, POD_PHASE_COLORS } from '../../lib/constants';
-import { toPolicyLaneData } from '../../lib/laneTransform';
+import { toPolicyLaneData, groupPods } from '../../lib/laneTransform';
 
 interface DetailPanelProps {
   nodeId: string | null;
@@ -29,17 +29,43 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ nodeId, groupId, graph
 
   const group = policyData?.workloadGroups.find(g => g.groupId === groupId);
 
+  const getWorkloadGroup = (id: string): WorkloadGroup | undefined => {
+    if (!graph) return undefined;
+    const actualGroupId = id.startsWith('cross-ns:') ? id.replace('cross-ns:', '') : id;
+    
+    let wg = workloadGroups?.find(g => g.groupId === actualGroupId);
+    if (wg) return wg;
+
+    const parts = actualGroupId.split('/');
+    if (parts.length >= 3) {
+      const ns = parts[1];
+      const pods = graph.nodes.filter(n => n.type === 'pod' && n.namespace === ns);
+      const groups = groupPods(pods, graph);
+      return groups.find(g => g.groupId === actualGroupId);
+    }
+    return undefined;
+  };
+
   const handleTrace = (conn: any) => {
-    if (!workloadGroups || !onTrace || !groupId) return;
+    if (!workloadGroups || !onTrace || !groupId) {
+      console.warn('handleTrace: missing workloadGroups, onTrace, or groupId');
+      return;
+    }
     const activeGroup = workloadGroups.find(g => g.groupId === groupId);
-    if (!activeGroup || activeGroup.pods.length === 0) return;
+    if (!activeGroup || activeGroup.pods.length === 0) {
+      console.warn('handleTrace: activeGroup not found or has no pods', { groupId, activeGroup });
+      return;
+    }
 
     const sourcePod = activeGroup.pods.find(p => (p.data as PodData).phase === 'Running') ?? activeGroup.pods[0];
     const isOutbound = conn.sourceId === groupId;
 
     if (isOutbound) {
-      const destGroup = workloadGroups.find(g => g.groupId === conn.targetId);
-      if (!destGroup || destGroup.serviceIds.length === 0) return;
+      const destGroup = getWorkloadGroup(conn.targetId);
+      if (!destGroup || destGroup.serviceIds.length === 0) {
+        console.warn('handleTrace: destGroup not found or has no serviceIds', { targetId: conn.targetId, destGroup });
+        return;
+      }
       onTrace({
         fromPodId:   sourcePod.id,
         toServiceId: destGroup.serviceIds[0],
@@ -47,11 +73,17 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ nodeId, groupId, graph
         toLabel:     destGroup.label,
       });
     } else {
-      const sourceGroup = workloadGroups.find(g => g.groupId === conn.sourceId);
-      if (!sourceGroup || sourceGroup.pods.length === 0) return;
+      const sourceGroup = getWorkloadGroup(conn.sourceId);
+      if (!sourceGroup || sourceGroup.pods.length === 0) {
+        console.warn('handleTrace: sourceGroup not found or has no pods', { sourceId: conn.sourceId, sourceGroup });
+        return;
+      }
       const srcPod = sourceGroup.pods.find(p => (p.data as PodData).phase === 'Running') ?? sourceGroup.pods[0];
       const destGroup = workloadGroups.find(g => g.groupId === groupId);
-      if (!destGroup || destGroup.serviceIds.length === 0) return;
+      if (!destGroup || destGroup.serviceIds.length === 0) {
+        console.warn('handleTrace: destGroup not found or has no serviceIds', { groupId, destGroup });
+        return;
+      }
       onTrace({
         fromPodId:   srcPod.id,
         toServiceId: destGroup.serviceIds[0],
@@ -103,38 +135,38 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ nodeId, groupId, graph
               }
 
               const destGroupId = isSourceGroup ? otherId : groupId;
-              const destGroupForTrace = destGroupId === groupId ? group : policyData.workloadGroups.find(g => g.groupId === destGroupId);
+              const destGroupForTrace = destGroupId === groupId ? group : getWorkloadGroup(destGroupId);
               const hasService = !!destGroupForTrace && destGroupForTrace.serviceIds.length > 0;
 
               const showTrace = type === 'allow' && otherId !== 'external' && otherId !== 'unrestricted' && !otherId.startsWith('portal-') && hasService;
 
               return (
-                <div key={i} className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded p-2 text-[11px]">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 text-[var(--text-primary)] font-medium">
-                      {isSourceGroup ? (
-                        <><span>To:</span><span className="truncate">{otherLabel}</span></>
-                      ) : (
-                        <><span>From:</span><span className="truncate">{otherLabel}</span></>
-                      )}
-                    </div>
-                    {showTrace && (
-                      <button 
-                        onClick={() => handleTrace(c)}
-                        style={{ fontSize: '11px', color: 'var(--border-accent)', background: 'transparent', border: '1px solid var(--border-accent)', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer' }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.08)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        Trace →
-                      </button>
+                <div key={i} className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded p-2 text-[11px] flex flex-col">
+                  <div className="text-[var(--text-primary)] font-medium mb-1 break-all">
+                    {isSourceGroup ? (
+                      <><span>To: </span><span>{otherLabel}</span></>
+                    ) : (
+                      <><span>From: </span><span>{otherLabel}</span></>
                     )}
                   </div>
-                  <div className="text-[10px] text-[var(--text-secondary)] font-mono truncate" title={c.ruleDescription}>
+                  <div className="text-[10px] text-[var(--text-secondary)] font-mono break-all" title={c.ruleDescription}>
                     Rule: {c.ruleDescription || 'N/A'}
                   </div>
                   {c.ports && c.ports.length > 0 && (
                     <div className="text-[10px] text-[var(--text-muted)] mt-1 font-mono">
                       Ports: {c.ports.join(', ')}
+                    </div>
+                  )}
+                  {showTrace && (
+                    <div className="mt-2 flex justify-end">
+                      <button 
+                        onClick={() => handleTrace(c)}
+                        style={{ flexShrink: 0, fontSize: '11px', color: 'var(--border-accent)', background: 'transparent', border: '1px solid var(--border-accent)', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.08)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Trace →
+                      </button>
                     </div>
                   )}
                 </div>
