@@ -1,0 +1,12 @@
+apiVersion: v2
+name: k8s-viz
+description: Kubernetes network topology visualizer and cluster GUI
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - networking
+  - observability
+maintainers:
+  - name: k8s-viz

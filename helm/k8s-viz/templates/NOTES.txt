@@ -1,0 +1,39 @@
+Thank you for installing {{ .Chart.Name }} v{{ .Chart.Version }}!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ACCESS THE FRONTEND
+
+  Run the following commands to get the URL:
+
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.spec.ports[0].nodePort}" \
+    services {{ include "k8s-viz.fullname" . }}-frontend)
+
+  export NODE_IP=$(kubectl get nodes \
+    --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.items[0].status.addresses[?(@.type=='InternalIP')].address}")
+
+  echo "http://$NODE_IP:$NODE_PORT"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  WAIT FOR READINESS
+
+  Watch the backend become ready (initial graph sync takes ~15s):
+
+  kubectl rollout status deployment/{{ include "k8s-viz.fullname" . }}-backend \
+    -n {{ .Release.Namespace }}
+
+  kubectl rollout status deployment/{{ include "k8s-viz.fullname" . }}-frontend \
+    -n {{ .Release.Namespace }}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  UPGRADE (new frontend image)
+
+  helm upgrade {{ .Release.Name }} ./helm/k8s-viz \
+    --namespace {{ .Release.Namespace }} \
+    --set frontend.image.tag=<new-tag>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

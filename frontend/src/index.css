@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base:       #f8fafc;
+  --bg-surface:    #ffffff;
+  --bg-elevated:   #f1f5f9;
+  --bg-input:      #f8fafc;
+  --border:        #e2e8f0;
+  --border-bright: #cbd5e1;
+  --border-accent: #3b82f6;
+
+  --text-primary:  #0f172a;
+  --text-secondary:#475569;
+  --text-muted:    #94a3b8;
+  --text-code:     #0369a1;
+
+  --pod:           #2563eb;
+  --service:       #7c3aed;
+  --ingress:       #d97706;
+  --netpol:        #dc2626;
+  --cluster-node:  #059669;
+  --namespace:     #0891b2;
+  --logs:          #f59e0b;
+  --external:      #64748b;
+  --portal:        #94a3b8;
+  --workload:      #2563eb;
+  --bg-hover:      #f1f5f9;
+
+  --status-running:   #059669;
+  --status-pending:   #d97706;
+  --status-failed:    #dc2626;
+  --status-succeeded: #4f46e5;
+  --status-unknown:   #94a3b8;
+
+  --edge-service:       #7c3aed;
+  --edge-ingress:       #d97706;
+  --edge-placement:     #e2e8f0;
+  --edge-cross-ns:      #cbd5e1;
+  --edge-netpol-allow:  #059669;
+  --edge-netpol-block:  #dc2626;
+  --edge-implicit:      #cbd5e1;
+
+  --nav-width:            200px;
+  --nav-width-collapsed:  52px;
+  --section-header-height:48px;
+  --status-bar-height:    28px;
+
+  --restart-warning:      #d97706;
+  --restart-high:         #ea580c;
+  --restart-critical:     #dc2626;
+}
+
+body.nav-collapsed {
+  --nav-width: 52px;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: Inter, system-ui;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@keyframes job-pulse {
+  0%   { background-color: transparent; }
+  50%  { background-color: rgba(59, 130, 246, 0.08); }
+  100% { background-color: transparent; }
+}
+
+.job-running-row {
+  animation: job-pulse 2s infinite ease-in-out;
+}

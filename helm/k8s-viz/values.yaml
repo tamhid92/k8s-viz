@@ -1,0 +1,56 @@
+# Backend
+backend:
+  image:
+    repository: k8s-viz-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 5000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    FLASK_DEBUG: "false"
+    SECRET_KEY: "change-me-in-production"
+
+# Frontend
+frontend:
+  image:
+    repository: k8s-viz-frontend
+    tag: "latest"       # ← update this tag to deploy new frontend versions
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  service:
+    type: NodePort
+    port: 80
+    nodePort: 30080     # set to 0 to let K8s auto-assign
+
+# ServiceAccount and RBAC
+serviceAccount:
+  create: true
+  name: ""              # auto-generated from chart name if empty
+
+# Image pull secrets (for private registries)
+imagePullSecrets: []
+
+# Pod-level settings
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+
+# Node selection
+nodeSelector: {}
+tolerations: []
+affinity: {}
