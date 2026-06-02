@@ -1,9 +1,9 @@
 # Backend
 backend:
   image:
-    repository: k8s-viz-backend
+    repository: ghcr.io/tamhid92/k8s-viz-backend
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicaCount: 1
   port: 5000
   resources:
@@ -19,9 +19,9 @@ backend:
 # Frontend
 frontend:
   image:
-    repository: k8s-viz-frontend
+    repository: ghcr.io/tamhid92/k8s-viz-frontend
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicaCount: 1
   port: 80
   resources:
