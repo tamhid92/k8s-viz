@@ -65,16 +65,17 @@ class PacketTracer:
 
     def _detect_cni(self) -> str | None:
         for n in self._graph.nodes:
-            if n.namespace == "kube-system" and n.type == "pod":
+            if n.type == "pod":
                 labels = n.data.labels or {}
                 name = n.label or ""
-                if labels.get("k8s-app") == "flannel" or "flannel" in name:
+                ns = n.namespace or ""
+                if labels.get("k8s-app") == "flannel" or "flannel" in name or "flannel" in ns:
                     return "flannel (VXLAN)"
-                if labels.get("k8s-app") == "calico-node" or "calico" in name:
+                if labels.get("k8s-app") == "calico-node" or "calico" in name or "calico" in ns:
                     return "calico"
-                if "cilium" in name:
+                if "cilium" in name or "cilium" in ns:
                     return "cilium (eBPF)"
-                if "weave" in name:
+                if "weave" in name or "weave" in ns:
                     return "weave"
                 if "kindnet" in name:
                     return "kindnet (bridge)"
