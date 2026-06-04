@@ -5,6 +5,7 @@ import { Graph, PodData, ServiceData, IngressData, NetworkPolicyData, ClusterNod
 import { TraceRequest } from '../../types/trace';
 import { NODE_COLORS, NODE_LABELS, POD_PHASE_COLORS } from '../../lib/constants';
 import { toPolicyLaneData, groupPods } from '../../lib/laneTransform';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface DetailPanelProps {
   nodeId: string | null;
@@ -18,6 +19,10 @@ interface DetailPanelProps {
 }
 
 export const DetailPanel: React.FC<DetailPanelProps> = ({ nodeId, groupId, graph, namespace, onClose, onNavigate, workloadGroups, onTrace }) => {
+  useEscapeKey(() => {
+    onClose();
+  });
+
   const { openLogTab, openDescribeTab } = useLogManager();
   const node = graph?.nodes.find(n => n.id === nodeId);
   const data = node?.data;

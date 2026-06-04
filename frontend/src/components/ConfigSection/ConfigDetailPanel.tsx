@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, FileText, Lock, AlertTriangle } from 'lucide-react';
 import { ConfigMapItem, SecretItem } from '../../types/resources';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface Props {
   item: any;
@@ -9,6 +10,10 @@ interface Props {
 }
 
 export const ConfigDetailPanel: React.FC<Props> = ({ item, kind, onClose }) => {
+  useEscapeKey(() => {
+    onClose();
+  });
+
   const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>({});
 
   if (!item) return null;

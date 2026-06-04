@@ -13,7 +13,6 @@ interface LaneViewProps {
   onNavigate: (ns: string, nodeId?: string) => void;
   transitionState: 'idle' | 'entering' | 'leaving';
   showNetPol?: boolean; // kept for backwards compatibility if needed, though replaced mostly by PolicyView
-  tracePanelOpen?: boolean;
   onWorkloadGroupsChange?: (groups: WorkloadGroup[]) => void;
 }
 
@@ -25,7 +24,6 @@ export const LaneView: React.FC<LaneViewProps> = ({
   onNodeSelect,
   onNavigate,
   transitionState,
-  tracePanelOpen,
   onWorkloadGroupsChange
 }) => {
   let transformClass = '';
@@ -44,7 +42,6 @@ export const LaneView: React.FC<LaneViewProps> = ({
       className={`absolute inset-0 flex flex-col bg-[var(--bg-base)] transition-all ease-out ${
         transitionState === 'entering' ? 'duration-400' : 'duration-350 ease-in'
       } ${transformClass} ${opacityClass}`}
-      style={{ paddingBottom: tracePanelOpen ? '420px' : '0' }}
     >
       {viewMode === 'policy' ? (
         <PolicyView

@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Shield } from 'lucide-react';
 import { RulesTable } from './RulesTable';
 import { ServiceAccountItem, RoleItem, RoleBindingItem } from '../../types/resources';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface Props {
   item: any;
@@ -11,6 +12,10 @@ interface Props {
 }
 
 export const RbacDetailPanel: React.FC<Props> = ({ item, kind, onClose, onSelectRole }) => {
+  useEscapeKey(() => {
+    onClose();
+  });
+
   if (!item) return null;
 
   return (

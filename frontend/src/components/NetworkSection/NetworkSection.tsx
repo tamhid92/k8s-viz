@@ -83,7 +83,6 @@ export const NetworkSection: React.FC<NetworkSectionProps> = ({
               onNodeSelect={onNodeSelect}
               transitionState={laneTransitionState}
               onNavigate={onNavigate}
-              tracePanelOpen={traceRequest !== null}
               onWorkloadGroupsChange={onWorkloadGroupsChange}
             />
           )}

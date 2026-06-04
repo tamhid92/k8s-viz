@@ -24,8 +24,6 @@ Managing Kubernetes clusters with complex NetworkPolicies via CLI and manifests 
 
 Visual graph of your cluster's network layer — services, pods, ingresses, and the connections between them. See which services select which pods, which ingresses route to which services, and how NetworkPolicies control traffic flow.
 
-![Network topology view](docs/screenshots/network-topology.png)
-
 ### Packet Tracer
 
 Simulate the full network path from any pod to any service. Each hop is shown with technical details:
@@ -38,43 +36,29 @@ Simulate the full network path from any pod to any service. Each hop is shown wi
 6. **NetworkPolicy** — evaluates ingress/egress rules on the path
 7. **Destination Pod** — final endpoint after DNAT
 
-![Packet tracer](docs/screenshots/packet-tracer.png)
-
 ### NetworkPolicy Visualization
 
 See exactly which pods a policy selects, what ingress/egress rules are defined, and which peers are allowed — without reading a single line of YAML.
-
-![NetworkPolicy view](docs/screenshots/network-policies.png)
 
 ### Workloads Dashboard
 
 Deployments, StatefulSets, DaemonSets, Jobs, and CronJobs — all with health status, replica counts, pod details, container specs, and events.
 
-![Workloads view](docs/screenshots/workloads.png)
-
 ### Deployment Map
 
 Click any deployment to see everything connected to it: pods (grouped by replica set), services, ingresses, NetworkPolicies, ConfigMaps, Secrets, ServiceAccounts, and the nodes pods are running on.
-
-![Deployment map](docs/screenshots/deployment-map.png)
 
 ### Namespace Map
 
 Full resource inventory for any namespace — workloads, services, ingresses, policies, config, and RBAC — all on one screen.
 
-![Namespace map](docs/screenshots/namespace-map.png)
-
 ### Log Streaming
 
 Real-time log tailing per pod or aggregated across all pods in a deployment, interleaved by timestamp.
 
-![Log viewer](docs/screenshots/logs.png)
-
 ### RBAC Viewer
 
 Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings with detailed rules tables.
-
-![RBAC view](docs/screenshots/rbac.png)
 
 ---
 

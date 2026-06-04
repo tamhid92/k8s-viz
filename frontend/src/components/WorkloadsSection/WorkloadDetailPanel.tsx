@@ -6,6 +6,7 @@ import { healthLabel, readyString, jobStatusColor, jobStatusLabel, cronJobStatus
 import { PodList } from './PodList';
 import { EventsList } from './EventsList';
 import { useLogManager } from '../../hooks/useLogManager';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { ScrollText, FileText } from 'lucide-react';
 
 function JobStatusBadge({ status }: { status: any }) {
@@ -31,6 +32,10 @@ interface Props {
 }
 
 export const WorkloadDetailPanel: React.FC<Props> = ({ item, kind, onClose, onNavigate }) => {
+  useEscapeKey(() => {
+    onClose();
+  });
+
   const { openLogTab, openDescribeTab } = useLogManager();
   const [activeTab, setActiveTab] = useState<'overview' | 'pods' | 'events' | 'job history'>('overview');
 

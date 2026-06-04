@@ -6,6 +6,7 @@ import {
   ConnectedNode, ConnectedServiceAccount
 } from '../../types/workloads';
 import { useLogManager } from '../../hooks/useLogManager';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { ScrollText } from 'lucide-react';
 
 interface Props {
@@ -26,6 +27,10 @@ type DetailItem =
   | ConnectedServiceAccount;
 
 export const DeployMapDetailPanel: React.FC<Props> = ({ nodeKey, map, onClose }) => {
+  useEscapeKey(() => {
+    onClose();
+  });
+
   const { openLogTab, openDescribeTab } = useLogManager();
   if (!nodeKey || !map) return null;
 

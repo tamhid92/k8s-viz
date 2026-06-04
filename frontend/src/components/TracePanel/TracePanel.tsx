@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Route, X, Loader2, AlertTriangle, Box, Globe, Shuffle, GitBranch, Cpu, ArrowRightLeft, Shield, ShieldCheck } from 'lucide-react';
 import { TraceRequest, TraceResult, HopType } from '../../types/trace';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface TracePanelProps {
   request: TraceRequest | null;
@@ -40,6 +41,10 @@ export const TracePanel: React.FC<TracePanelProps> = ({ request, onClose }) => {
   const open = request !== null;
   const [result, setResult] = useState<TraceResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEscapeKey(() => {
+    if (open) onClose();
+  });
 
   useEffect(() => {
     if (!request) return;
@@ -81,9 +86,9 @@ export const TracePanel: React.FC<TracePanelProps> = ({ request, onClose }) => {
     <div style={{
       position: 'fixed',
       bottom: 0,
+      top: 0,
       left: 'var(--nav-width)',
       right: 0,
-      height: '420px',
       background: 'var(--bg-surface)',
       borderTop: '2px solid var(--border-accent)',
       boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
